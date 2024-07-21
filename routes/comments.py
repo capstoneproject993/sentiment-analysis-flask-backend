@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify
+from flask import Blueprint,request, jsonify
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from bs4 import BeautifulSoup
@@ -8,8 +8,8 @@ comments_bp = Blueprint('comments', __name__)
 
 @comments_bp.route('/linkedin', methods=['GET'])
 def scrape_comments_linkedin():
-    driver = webdriver.Chrome()  
-    post_url = 'https://www.linkedin.com/posts/bill-%26-melinda-gates-foundation_1-billion-gift-to-make-johns-hopkins-medical-activity-7216224984694677504-2ORU?utm_source=share&utm_medium=member_desktop'
+    driver = webdriver.Chrome()
+    post_url = request.args.get('url')  
     driver.get(post_url)
 
     time.sleep(1)
