@@ -5,6 +5,7 @@ from bs4 import BeautifulSoup
 import time
 import googleapiclient.discovery
 import googleapiclient.errors
+from urllib.parse import urlparse, parse_qs
 
 comments_bp = Blueprint('comments', __name__)
 
@@ -40,21 +41,26 @@ def scrape_comments_linkedin():
 
 @comments_bp.route('/youtube', methods=['GET'])
 def scrape_comments_youtube():
-    url = 'https://www.youtube.com/watch?v=H3w5HIH0tTQ'
-
+    post_url = request.args.get('url')
+    print(post_url)
+    parsed_url = urlparse(post_url)
+    query_params = parse_qs(parsed_url.query)
+    
+    video_id = query_params.get('v', [None])[0]
+    print(video_id)
     api_service_name="youtube"
     api_version="v3"
     DEVELOPER_KEY="AIzaSyDG9-yoU5uIm7KUa1458wGgyHKz2V0FiUE"
 
     youtube= googleapiclient.discovery.build(api_service_name,
         api_version,developerKey=DEVELOPER_KEY)
-    request=youtube.commentThreads().list(
+    req = youtube.commentThreads().list(
         part="snippet",
-        videoId="H3w5HIH0tTQ",
+        videoId=video_id,
         maxResults=100
     )
 
-    response=request.execute()
+    response=req.execute()
     comments=[]
     for item in response["items"]:
         name = item["snippet"]["topLevelComment"]["snippet"]["authorDisplayName"]
