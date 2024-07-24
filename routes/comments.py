@@ -3,6 +3,8 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from bs4 import BeautifulSoup
 import time
+import googleapiclient.discovery
+import googleapiclient.errors
 
 comments_bp = Blueprint('comments', __name__)
 
@@ -35,4 +37,34 @@ def scrape_comments_linkedin():
         'comments': comments
         })
 
+
+@comments_bp.route('/youtube', methods=['GET'])
+def scrape_comments_youtube():
+    url = 'https://www.youtube.com/watch?v=H3w5HIH0tTQ'
+
+    api_service_name="youtube"
+    api_version="v3"
+    DEVELOPER_KEY="AIzaSyDG9-yoU5uIm7KUa1458wGgyHKz2V0FiUE"
+
+    youtube= googleapiclient.discovery.build(api_service_name,
+        api_version,developerKey=DEVELOPER_KEY)
+    request=youtube.commentThreads().list(
+        part="snippet",
+        videoId="H3w5HIH0tTQ",
+        maxResults=100
+    )
+
+    response=request.execute()
+    comments=[]
+    for item in response["items"]:
+        name = item["snippet"]["topLevelComment"]["snippet"]["authorDisplayName"]
+        comment_text = item["snippet"]["topLevelComment"]["snippet"]["textDisplay"]
+        comment = { 'user':name, 'comment':comment_text }
+        comments.append(comment)
+        # print(name, ":", comment)
+    
+    return jsonify({
+        'status':200,
+        'comments':comments
+    })
 
