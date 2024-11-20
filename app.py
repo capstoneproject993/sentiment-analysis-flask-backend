@@ -167,9 +167,6 @@ class TextPreprocessor(BaseEstimator, TransformerMixin):
         return processed_texts
 
 
-
-
-
 app = Flask(__name__)
 CORS(app)
 

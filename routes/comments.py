@@ -27,6 +27,7 @@ from urllib.parse import urlparse, parse_qs
 import pickle
 import numpy as np
 
+
 # Load the sentiment analysis model
 with open("model_deeplearning (1).pkl", "rb") as file:
     loaded_model = pickle.load(file)
@@ -71,7 +72,7 @@ def scrape_comments_youtube():
     if not comments:
         return jsonify({'status': 200, 'message': 'No comments found', 'comments': []}), 200
 
-    predictions = loaded_model.predict(comments)
+    predictions = loaded_model.predict("bakwas")
 
     # Count the number of 1s, 0s, and -1s in the predictions
     positive_count = np.sum(predictions == 1)
@@ -112,4 +113,19 @@ def scrape_comments_youtube():
             'neutral': int(neutral_count),
             'negative': int(negative_count)
         }
+    })
+
+
+@comments_bp.route('/temp', methods=['GET'])
+def scrape_comments_temp():
+    return jsonify({
+        'status': 200,
+        #'comments': comments,
+        #'sentiments': predictions.tolist(),
+        'sentiment_counts': {
+            'positive': 15,
+            'neutral': 10,
+            'negative': 5
+        },
+        'title': 'video title'
     })
