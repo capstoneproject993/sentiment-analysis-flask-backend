@@ -15,15 +15,20 @@
 
 # 20/11/24
 #############################################################
+
+# to send counts to express backend
+import requests
+express_backend_url = "http://localhost:3000/sentiment"
+
+from model import TextPreprocessor
 from flask import Blueprint, request, jsonify
 import googleapiclient.discovery
 from urllib.parse import urlparse, parse_qs
 import pickle
 import numpy as np
-from model import TextPreprocessor
 
 # Load the sentiment analysis model
-with open("model_naive2.pkl", "rb") as file:
+with open("model_deeplearning (1).pkl", "rb") as file:
     loaded_model = pickle.load(file)
 print("Sentiment analysis model loaded successfully!")
 
@@ -81,10 +86,27 @@ def scrape_comments_youtube():
         'negative': int(negative_count)
     })
 
+    # Prepare data to send to Express backend
+    sentiment_data = {
+        'positive': int(positive_count),
+        'neutral': int(neutral_count),
+        'negative': int(negative_count),
+    }
+
+    # Send the sentiment data to the Express backend
+    #try:
+    #    response = requests.post(express_backend_url, json=sentiment_data)
+    #    if response.status_code == 200:
+    #        print("Sentiment data sent to Express backend successfully!")
+    #    else:
+    #        print(f"Error sending data to backend: {response.status_code}")
+    #except requests.exceptions.RequestException as e:
+    #    print(f"Error sending data to backend: {e}")
+
     return jsonify({
         'status': 200,
-        'comments': comments,
-        'sentiments': predictions.tolist(),
+        #'comments': comments,
+        #'sentiments': predictions.tolist(),
         'sentiment_counts': {
             'positive': int(positive_count),
             'neutral': int(neutral_count),
