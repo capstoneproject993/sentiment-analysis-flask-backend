@@ -1,4 +1,5 @@
 from selenium import webdriver
+from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
@@ -10,7 +11,7 @@ def init_linkedin_scrapper():
     linkedin_email = "capstoneproject993@gmail.com"
     linkedin_password = "CapstoneProject#$1"
 
-    driver = webdriver.Edge()
+    driver = webdriver.Chrome(ChromeDriverManager().install())
 
 
     login_url = 'https://www.linkedin.com/login'

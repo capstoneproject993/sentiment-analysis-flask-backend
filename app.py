@@ -1,6 +1,9 @@
 from flask import Flask
 from flask_cors import CORS
 from routes.comments import comments_bp
+from model import *
+
+
 
 app = Flask(__name__)
 CORS(app)
