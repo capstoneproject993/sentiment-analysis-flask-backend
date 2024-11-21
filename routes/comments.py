@@ -27,10 +27,25 @@ from urllib.parse import urlparse, parse_qs
 import pickle
 import numpy as np
 
-
-# Load the sentiment analysis model
 with open("model_deeplearning (1).pkl", "rb") as file:
     loaded_model = pickle.load(file)
+
+with open("vectorizer.pkl", "rb") as f:
+    vectorizer = pickle.load(f)
+
+def predict_sentiment(comments):
+    comments_vectorized = vectorizer.transform(comments).toarray()
+    probabilities = loaded_model.predict(comments_vectorized)  # Probabilities for each class
+
+    # Get the class with the highest probability
+    predictions = np.argmax(probabilities, axis=1)  # Returns indices of the max values along axis 1
+
+    # Map the indices to the corresponding sentiment values
+    sentiment_values = {-1, 0, 1}  # Modify based on the order in your model
+    mapped_predictions = [list(sentiment_values)[pred] for pred in predictions]
+
+    return mapped_predictions
+
 print("Sentiment analysis model loaded successfully!")
 
 comments_bp = Blueprint('comments', __name__)
@@ -72,14 +87,21 @@ def scrape_comments_youtube():
     if not comments:
         return jsonify({'status': 200, 'message': 'No comments found', 'comments': []}), 200
 
-    predictions = loaded_model.predict("bakwas")
+
+    predictions = predict_sentiment(comments)
 
     # Count the number of 1s, 0s, and -1s in the predictions
-    positive_count = np.sum(predictions == 1)
-    neutral_count = np.sum(predictions == 0)
-    negative_count = np.sum(predictions == -1)
+    positive_count = 0
+    neutral_count = 0
+    negative_count = 0
+    for p in predictions:
+        if(p==0):
+            neutral_count += 1
+        elif(p==1):
+            positive_count += 1
+        else:
+            negative_count += 1
 
-    print("Scraped Comments:", comments)
     print("Predicted Sentiments:", predictions)
     print("Sentiment Counts:", {
         'positive': int(positive_count),
@@ -94,15 +116,6 @@ def scrape_comments_youtube():
         'negative': int(negative_count),
     }
 
-    # Send the sentiment data to the Express backend
-    #try:
-    #    response = requests.post(express_backend_url, json=sentiment_data)
-    #    if response.status_code == 200:
-    #        print("Sentiment data sent to Express backend successfully!")
-    #    else:
-    #        print(f"Error sending data to backend: {response.status_code}")
-    #except requests.exceptions.RequestException as e:
-    #    print(f"Error sending data to backend: {e}")
 
     return jsonify({
         'status': 200,
